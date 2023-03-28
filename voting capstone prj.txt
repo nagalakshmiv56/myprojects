@@ -1,0 +1,124 @@
+simplilearn voting blockchain in ethereum project
+=================================================
+
+// SPDX-License-Identifier: GPL-3.0
+pragma solidity ^0.8.0;
+
+contract VotingContract {
+    struct VotingAdmin {
+        string name;
+        address adminAddress;
+        bool isAdmin;
+    }
+
+struct Candidate {
+        string name;
+        string proposal;
+        uint voteCount;
+    }
+
+    mapping(uint => Candidate) public candidates;
+    uint public numCandidates;
+    
+ struct Voter {
+        string name;
+        bool hasVoted;
+        bool hasDelegate;
+        address delegate;
+        uint vote;
+    }
+    
+
+    mapping(address => Voter) public voters;
+    uint public numVoters;
+
+    address public admin;
+
+    bool public electionStarted;
+    bool public electionEnded;  
+
+ function addCandidate(string memory _name, string memory _proposal, address owner) public {
+        Candidate memory newCandidate = Candidate(_name,_proposal,owner);
+        candidates.push(newCandidate);
+}
+
+  function addVoter(address _voter, address owner) public {
+    require(msg.sender == owner, "Only the owner can add a voter");
+    require(voters[_voter].registered == false, "Voter already registered");
+
+    voters[_voter] = Voter({
+        registered: true,
+        voted: false,
+        delegate: address(0),
+        delegateWeight: 0,
+        vote: 0
+    });
+}
+bool state;
+bool ElectionState;
+   function startElection(address owner) public {
+    require(msg.sender == owner);
+    require(state == ElectionState.NotStarted);
+
+    state = ElectionState.Started;
+}
+
+string[] candidateList;
+    function displayCandidateDetails(uint candidateID) public view returns (string memory name, string memory proposal, uint voteCount) {
+    require(candidateID < candidateList.length);
+
+    Candidate memory candidate = candidateList[candidateID];
+    name = candidate.name;
+    proposal = candidate.proposal;
+    voteCount = candidate.voteCount;
+}
+
+
+    function showWinner() public view returns (string memory, uint, uint) {
+    uint highestVoteCount = 0;
+    uint winningCandidateID;
+    
+    for (uint i = 0; i < candidates.length; i++) {
+        if (candidates[i].voteCount > highestVoteCount) {
+            highestVoteCount = candidates[i].voteCount;
+            winningCandidateID = i;
+        }
+    }
+    
+    return (candidates[winningCandidateID].name, candidates[winningCandidateID].proposal, highestVoteCount);
+}
+
+   function delegateVoting(address delegateAddress, address voterAddress) public {
+    require(voters[voterAddress].registered);
+    require(delegateAddress != voterAddress);
+
+    voters[voterAddress].delegate = delegateAddress;
+}
+
+   function castVote(uint candidateID, address voterAddress) public {
+    require(voters[voterAddress].isRegistered);
+    require(!voters[voterAddress].hasVoted);
+
+    candidates[candidateID].voteCount++;
+    voters[voterAddress].hasVoted = true;
+}
+
+
+   function endElection(address owner) public {
+    require(msg.sender == owner);
+    bool ElectionActive = false;
+}
+
+function viewVoterProfile(address voterAddress) public view returns (string memory name, uint age, bool hasVoted) {
+    Voter memory voter = voters[voterAddress];
+    return (voter.name, voter.age, voter.hasVoted);
+}
+
+
+    function showElectionResults(uint candidateID) public view returns (uint, string memory, uint) {
+        // show the number of votes received by a specific candidate
+        
+    }
+
+  
+}
